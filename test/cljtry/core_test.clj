@@ -16,37 +16,42 @@
     (= direction "S") "E"
     (= direction "W") "S"))
 
-(defn direction-of [position]
-  (last position))
-
-(defn rotate [where, position, other-commands]
-  (let [direction (where (direction-of position))]
-    ((land-rover (conj (subvec position 0 2) direction)) other-commands)))
-
-(defn move [position, other-commands]
-  (let [next-position (cond
-                        (= (direction-of position) "N") (vec (map + position [0, 1]))
-                        (= (direction-of position) "E") (vec (map + position [1, 0]))
-                        (= (direction-of position) "S") (vec (map + position [0, -1]))
-                        (= (direction-of position) "W") (vec (map + position [-1, 0]))
-                        )]
-    ((land-rover (conj next-position (direction-of position))) other-commands)))
-
-(defn exec [position, command-string]
-  (def command (subs command-string 0 1))
-  (def other-commands (subs command-string 1))
+(defn vector-towards [direction]
   (cond
-    (= command "M") (move position other-commands)
-    (= command "R") (rotate to-the-right position other-commands)
-    (= command "L") (rotate to-the-left position other-commands)))
+    (= direction "N") [0, 1]
+    (= direction "E") [1, 0]
+    (= direction "S") [0, -1]
+    (= direction "W") [-1, 0]))
 
-(defn land-rover [position]
+(defn direction-of [rover-state]
+  (last rover-state))
+
+(defn coordinates-of [rover-state]
+  (subvec rover-state 0 2))
+
+(defn rotate [rotate, rover-state, next-commands]
+  (let [new-direction (rotate (direction-of rover-state))]
+    ((land-rover (conj (coordinates-of rover-state) new-direction)) next-commands)))
+
+(defn move [rover-state, next-commands]
+  (let [new-coordinates (vec (map + rover-state (vector-towards (direction-of rover-state))))]
+    ((land-rover (conj new-coordinates (direction-of rover-state))) next-commands)))
+
+(defn exec [rover-state, command-string]
+  (def command (subs command-string 0 1))
+  (def next-commands (subs command-string 1))
+  (cond
+    (= command "M") (move rover-state next-commands)
+    (= command "R") (rotate to-the-right rover-state next-commands)
+    (= command "L") (rotate to-the-left rover-state next-commands)))
+
+(defn land-rover [rover-state]
   (fn [command-string]
     "executes commands"
     (if
       (> (count command-string) 0)
-      (exec position command-string)
-      position)))
+      (exec rover-state command-string)
+      rover-state)))
 
 (def rover (land-rover [0, 0, "N"]))
 
