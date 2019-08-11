@@ -37,25 +37,30 @@
   (let [new-coordinates (vec (map + rover-state (vector-towards (direction-of rover-state))))]
     (conj new-coordinates (direction-of rover-state))))
 
-(defn exec [rover-state, command-string]
-  (def command (subs command-string 0 1))
-  (def next-commands (subs command-string 1))
-  (let [next-state (cond
-                (= command "M") (move rover-state)
-                (= command "R") (rotate to-the-right rover-state)
-                (= command "L") (rotate to-the-left rover-state))]
-    ((land-rover next-state) next-commands)))
+(defn has-commands [command-string]
+  (> (count command-string) 0))
 
-(defn land-rover [rover-state]
+(defn next-command-of [command-string]
+  (subs command-string 0 1))
+
+(defn rest-of-commands [command-string]
+  (subs command-string 1))
+
+(defn a-land-rover-with [rover-state]
   (fn [command-string]
     "executes commands"
     (if
-      (> (count command-string) 0)
-      (exec rover-state command-string)
+      (has-commands command-string)
+      (let [next-state
+            (let [command (next-command-of command-string)]
+              (cond
+                (= command "M") (move rover-state)
+                (= command "R") (rotate to-the-right rover-state)
+                (= command "L") (rotate to-the-left rover-state)))]
+        ((a-land-rover-with next-state) (rest-of-commands command-string)))
       rover-state)))
 
-(def rover (land-rover [0, 0, "N"]))
-
+(def rover (a-land-rover-with [0, 0, "N"]))
 
 (fact "rover rotates to the right"
       (rover "R")    => [0, 0, "E"]
