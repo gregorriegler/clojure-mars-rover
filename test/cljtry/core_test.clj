@@ -29,21 +29,22 @@
 (defn coordinates-of [rover-state]
   (subvec rover-state 0 2))
 
-(defn rotate [rotate, rover-state, next-commands]
+(defn rotate [rotate, rover-state]
   (let [new-direction (rotate (direction-of rover-state))]
-    ((land-rover (conj (coordinates-of rover-state) new-direction)) next-commands)))
+    (conj (coordinates-of rover-state) new-direction)))
 
-(defn move [rover-state, next-commands]
+(defn move [rover-state]
   (let [new-coordinates (vec (map + rover-state (vector-towards (direction-of rover-state))))]
-    ((land-rover (conj new-coordinates (direction-of rover-state))) next-commands)))
+    (conj new-coordinates (direction-of rover-state))))
 
 (defn exec [rover-state, command-string]
   (def command (subs command-string 0 1))
   (def next-commands (subs command-string 1))
-  (cond
-    (= command "M") (move rover-state next-commands)
-    (= command "R") (rotate to-the-right rover-state next-commands)
-    (= command "L") (rotate to-the-left rover-state next-commands)))
+  (let [next-state (cond
+                (= command "M") (move rover-state)
+                (= command "R") (rotate to-the-right rover-state)
+                (= command "L") (rotate to-the-left rover-state))]
+    ((land-rover next-state) next-commands)))
 
 (defn land-rover [rover-state]
   (fn [command-string]
