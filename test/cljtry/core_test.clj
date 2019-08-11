@@ -23,9 +23,9 @@
 (defn move [position, other-commands]
   (let [next-position (cond
                         (= (last position) "N") (vec (map + position [0, 1]))
-                        (= (last position) "E") [0, 0]
+                        (= (last position) "E") (vec (map + position [1, 0]))
                         (= (last position) "S") (vec (map + position [0, -1]))
-                        (= (last position) "W") [0, 0]
+                        (= (last position) "W") (vec (map + position [-1, 0]))
                         )]
     ((land-rover (conj next-position (last position))) other-commands)))
 
@@ -69,4 +69,14 @@
       (rover "RRM")   => [0, -1, "S"]
       (rover "RRMM")  => [0, -2, "S"]
       (rover "RRMMM") => [0, -3, "S"])
+
+(fact "rover moves east"
+      (rover "RM")   => [1, 0, "E"]
+      (rover "RMM")  => [2, 0, "E"]
+      (rover "RMMM") => [3, 0, "E"])
+
+(fact "rover moves west"
+      (rover "LM")   => [-1, 0, "W"]
+      (rover "LMM")  => [-2, 0, "W"]
+      (rover "LMMM") => [-3, 0, "W"])
 
