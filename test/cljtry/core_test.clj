@@ -2,8 +2,16 @@
   (:require [midje.sweet :refer :all]
             [cljtry.core :refer :all]))
 
+(defn right-of [direction]
+  (cond
+    (= direction "N") "E"
+    (= direction "E") "S"
+    (= direction "S") "W"
+    (= direction "W") "N"))
+
 (defn rotate-right [position, other-commands]
-  ((land-rover (conj (subvec position 0 2) "E")) other-commands))
+  (let [next-direction (right-of (last position))]
+    ((land-rover (conj (subvec position 0 2) next-direction)) other-commands)))
 
 (defn move [position, other-commands]
     ((land-rover (conj (vec (map + position [0, 1])) (last position))) other-commands))
@@ -30,9 +38,8 @@
       (rover "MM")  => [0, 2, "N"]
       (rover "MMM") => [0, 3, "N"])
 
-(fact "rover rotates"
+(fact "rover rotates to the right"
       (rover "R")    => [0, 0, "E"]
-    ;  (rover "RR")   => [0, 0, "S"]
-    ;  (rover "RRR")  => [0, 0, "W"]
-    ;  (rover "RRRR") => [0, 0, "N"]
-    )
+      (rover "RR")   => [0, 0, "S"]
+      (rover "RRR")  => [0, 0, "W"]
+      (rover "RRRR") => [0, 0, "N"])
