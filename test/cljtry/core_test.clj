@@ -8,16 +8,19 @@
 (defn move [position, other-commands]
     ((land-rover (conj (vec (map + position [0, 1])) (last position))) other-commands))
 
-(defn exec [position, command, other-commands]
+(defn exec [position, command-string]
+  (def command (subs command-string 0 1))
+  (def other-commands (subs command-string 1))
   (cond
     (= command "M") (move position other-commands)
     (= command "R") (rotate-right position other-commands)))
 
 (defn land-rover [position]
   (fn [command-string]
+    "executes commands"
     (if
       (> (count command-string) 0)
-      (exec position (subs command-string 0 1) (subs command-string 1))
+      (exec position command-string)
       position)))
 
 (def rover (land-rover [0, 0, "N"]))
