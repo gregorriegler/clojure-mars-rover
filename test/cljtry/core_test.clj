@@ -16,18 +16,21 @@
     (= direction "S") "E"
     (= direction "W") "S"))
 
+(defn direction-of [position]
+  (last position))
+
 (defn rotate [where, position, other-commands]
-  (let [direction (where (last position))]
+  (let [direction (where (direction-of position))]
     ((land-rover (conj (subvec position 0 2) direction)) other-commands)))
 
 (defn move [position, other-commands]
   (let [next-position (cond
-                        (= (last position) "N") (vec (map + position [0, 1]))
-                        (= (last position) "E") (vec (map + position [1, 0]))
-                        (= (last position) "S") (vec (map + position [0, -1]))
-                        (= (last position) "W") (vec (map + position [-1, 0]))
+                        (= (direction-of position) "N") (vec (map + position [0, 1]))
+                        (= (direction-of position) "E") (vec (map + position [1, 0]))
+                        (= (direction-of position) "S") (vec (map + position [0, -1]))
+                        (= (direction-of position) "W") (vec (map + position [-1, 0]))
                         )]
-    ((land-rover (conj next-position (last position))) other-commands)))
+    ((land-rover (conj next-position (direction-of position))) other-commands)))
 
 (defn exec [position, command-string]
   (def command (subs command-string 0 1))
