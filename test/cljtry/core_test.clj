@@ -17,11 +17,17 @@
     (= direction "W") "S"))
 
 (defn rotate [where, position, other-commands]
-  (let [next-direction (where (last position))]
-    ((land-rover (conj (subvec position 0 2) next-direction)) other-commands)))
+  (let [direction (where (last position))]
+    ((land-rover (conj (subvec position 0 2) direction)) other-commands)))
 
 (defn move [position, other-commands]
-    ((land-rover (conj (vec (map + position [0, 1])) (last position))) other-commands))
+  (let [next-position (cond
+                        (= (last position) "N") (vec (map + position [0, 1]))
+                        (= (last position) "E") [0, 0]
+                        (= (last position) "S") (vec (map + position [0, -1]))
+                        (= (last position) "W") [0, 0]
+                        )]
+    ((land-rover (conj next-position (last position))) other-commands)))
 
 (defn exec [position, command-string]
   (def command (subs command-string 0 1))
@@ -41,10 +47,6 @@
 
 (def rover (land-rover [0, 0, "N"]))
 
-(fact "rover moves"
-      (rover "M")   => [0, 1, "N"]
-      (rover "MM")  => [0, 2, "N"]
-      (rover "MMM") => [0, 3, "N"])
 
 (fact "rover rotates to the right"
       (rover "R")    => [0, 0, "E"]
@@ -57,4 +59,14 @@
       (rover "LL")   => [0, 0, "S"]
       (rover "LLL")  => [0, 0, "E"]
       (rover "LLLL") => [0, 0, "N"])
+
+(fact "rover moves north"
+      (rover "M")   => [0, 1, "N"]
+      (rover "MM")  => [0, 2, "N"]
+      (rover "MMM") => [0, 3, "N"])
+
+(fact "rover moves south"
+      (rover "RRM")   => [0, -1, "S"]
+      (rover "RRMM")  => [0, -2, "S"]
+      (rover "RRMMM") => [0, -3, "S"])
 
