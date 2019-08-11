@@ -49,8 +49,7 @@
 (defn a-land-rover-with [rover-state]
   (fn [command-string]
     "executes commands"
-    (if
-      (has-commands command-string)
+    (if (has-commands command-string)
       (let [next-state
             (let [command (next-command-of command-string)]
               (cond
