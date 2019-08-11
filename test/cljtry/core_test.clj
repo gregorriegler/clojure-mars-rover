@@ -2,14 +2,23 @@
   (:require [midje.sweet :refer :all]
             [cljtry.core :refer :all]))
 
-(defn move [pos]
-  pos + [0, 1])
+(defn move [position, other-commands]
+  (let [new-position (vec (map + position [0, 1]))]
+    ((create-rover new-position) other-commands)))
 
-(defn create-rover [pos]
-  (fn [cmd] (move pos)))
+(defn exec [position, command, other-commands]
+  (= command "M") (move position other-commands))
 
-(def rover (create-rover [0, 0]))
+(defn land-rover [position]
+  (fn [command-string]
+    (if
+      (> (count command-string) 0)
+      (exec position (subs command-string 0 1) (subs command-string 1))
+      position)))
+
+(def rover (land-rover [0, 0]))
 
 (fact "rover moves"
-      (rover "M") => [0, 1]
-      (rover "MM") => [0, 2])
+      (rover "M")   => [0, 1]
+      (rover "MM")  => [0, 2]
+      (rover "MMM") => [0, 3])
